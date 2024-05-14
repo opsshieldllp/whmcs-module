@@ -16,13 +16,15 @@ Download the files from the repo and place them under `modules/servers/opsshield
   .
 ```
     
-## Setting up Server and Product/Service in WHMCS admin
+## Setting up
 
-After installation of the provision module, we can add a server in WHMCS admin and then create Products/Service packages
+This guide walks you through the initial setup process for the OPSSHIELD WHMCS provisioning module. The first step involves adding a new server within your WHMCS admin panel to connect to the OPSSHIELD API.
 
-### 1. Add a server
+## Step 1. Add a new server
 
-1. Go to Configuration > System Settings > Servers and click on `+ Add new server`
+First we have to add a new server in the WHMCS admin
+
+1. Go to Configuration > System Settings > Servers and click on `+ Add new server` 
 2. Select `OPSSHIELD Licenses` as the Module
 3. Enter Hostname or IP Address as `manage.opsshield.com` (Unused, but required to be filled in by WHMCS)
 4. Enter the email or client ID of your OPSSHIELD account as the Username (Doesn't matter as it is unused)
@@ -30,43 +32,16 @@ After installation of the provision module, we can add a server in WHMCS admin a
 6. Click `Test Connection` to validate the connection
 7. Enter a Server Name and Save the Server.
 
+![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/7de917fd-9bf7-4e99-8142-2c96d87d6bec)
 
-### 2. Create email templates
-
-Before we can proceed to create new Product/Service packages we have to create two Product email templates for the products. You may modify the email content as required.
-
-#### 2.1 Create invitation email template
-
-1. Go to Configuration > System Settings > Email Templates and click on `+ Create New Email Template`
-2. Select "Email Type" as `Product/Service`, Enter `cPGuard invitation email` as "Unique Name" and click `Create`
-3. Enter `Complete registration for new cPGuard service` as subject and enter the following in the content
-
-
-```
-Dear {$client_name},
-
-Complete registration at OPSSHIELD
-
-For accessing the cPGuard UI you have to create an account at OPSSHIELD
-Please click on the invitation link below to fill out a form and create your OPSSHIELD account
-
-{$invitation_link}
-
-You can access your cPGuard dashboard by signing on to https://app.opsshield.com with your new credentials
-
-
-Thank you for choosing us.
-
-{$signature}
-```
-
-#### 2.2 Create welcome email template
+## Step 2. Create a welcome email template
 
 Before we can proceed to create new Product/Service packages we have to create two Product email templates for the products
 
 1. Go to Configuration > System Settings > Email Templates and click on `+ Create New Email Template`
 2. Select "Email Type" as `Product/Service`, Enter `cPGuard welcome email` as "Unique Name" and click `Create`
-3. Enter `New cPGuard license created` as subject and enter the following in the content
+3. In the new form, Enter the From address and other details as required
+4. Enter `New cPGuard license created` as subject and enter the following in the content
 
 
 ```
@@ -96,20 +71,53 @@ Thank you for choosing us.
 
 {$signature}
 ```
+> [!NOTE]
+> You should highlight heading texts like "Installing cPGuard" and "Accessing UI" bold in the email template editor.
+
+## Step 3. Create an invitation email template
+
+Next, we create a template used for sending an invitation link for creating an OPSSHIELD account for the client (if the client does not have one).
+The client uses their OPSSHIELD account to access the cPGuard App Portal UI
+
+1. Go to Configuration > System Settings > Email Templates and click on `+ Create New Email Template`
+2. Select "Email Type" as `Product/Service`, Enter `cPGuard invitation email` as "Unique Name" and click `Create`
+3. In the new form, Enter the From address and other details as required
+4. Enter `Complete registration for new cPGuard service` as subject and enter the following in the content
+
+```
+Dear {$client_name},
+
+Complete registration at OPSSHIELD
+
+For accessing the cPGuard UI you have to create an account at OPSSHIELD
+Please click on the invitation link below to fill out a form and create your OPSSHIELD account
+
+{$invitation_link}
+
+You can access your cPGuard dashboard by signing on to https://app.opsshield.com with your new credentials
 
 
-### 3. Creating a product
+Thank you for choosing us.
+
+{$signature}
+```
+
+## Step 4. Adding a Product/Service
 
 1. Go to Configuration > System Settings > Products/Services and click on `+ Create a New Product`
 2. Select `Other` for product type and Choose/Create a product group as you prefer
 3. Enter a product name. Eg. 'cPGuard unlimited accounts' or 'cPGuard 50 user accounts pack'
 4. Select `OPSSHIELD Licenses` as the module and click `Continue`
+
+![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/9398d303-7f2a-4a0f-8af5-f1b16e2e0b1d)
+
+
 5. On the "Details" tab, select the Welcome Email template created earlier
 7. On the "Module Settings" tab, Select the respective reseller package available for you
 8. Select the Currency and Invitation email template created earlier and choose desired Auto-setup option
 9. Set your Pricing on the "Pricing" Tab and click 'Save Changes'
 
+![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/90c41572-e55a-4c31-bb58-7ac517f8ec21)
+
+
 Go ahead and try placing a test order to check everything is working
-
-
-
