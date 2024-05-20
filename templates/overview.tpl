@@ -153,29 +153,3 @@
 
 <!---------------------------------------------------------------------------------------------------------------------------------->
 
-
-
-
-
-
-<hr>
-
-<div class="row">
-    {if $ips}
-    <div class="col-sm-4">
-        <a href="https://app.opsshield.com/server/ip/{$ips}" target="_blank" class="btn btn-info btn-block">
-            Open App
-        </a>
-    </div>
-    {/if}
-    <div class="col-sm-4">
-        <a href="clientarea.php?action=cancel&amp;id={$id}"
-            class="btn btn-danger btn-block{if $pendingcancellation}disabled{/if}">
-            {if $pendingcancellation}
-            {$LANG.cancellationrequested}
-            {else}
-            {$LANG.cancel}
-            {/if}
-        </a>
-    </div>
-</div>

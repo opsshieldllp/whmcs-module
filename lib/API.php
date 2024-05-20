@@ -75,6 +75,19 @@ class API
         return $this->request('unsuspendlicense', ['service_id' => $service_id]);
     }
 
+    public function changePackage($service_id, $pricing_id, $quantity, $client_email)
+    {
+        //Cancels existing and creates a new license
+        $data = [
+            'service_id' => $service_id,
+            'pricing_id' => $pricing_id,
+            'quantity' => $quantity,
+            'client_email' => $client_email
+        ];
+
+        return $this->request('changepackage', $data);
+    }
+
     public function cancelLicense($service_id)
     {
         return $this->request('cancellicense', ['service_id' => $service_id]);

@@ -102,6 +102,9 @@ Thank you for choosing us.
 {$signature}
 ```
 
+> [!NOTE]
+> Invitation email is send to clients (identified by email) who does not already have an OPSSHIELD account. An OPSSHIELD account is required to login and view the cPGuard UI at https://app.opsshield.com
+
 ## Step 4. Adding a Product/Service
 
 1. Go to Configuration > System Settings > Products/Services and click on `+ Create a New Product`
@@ -121,3 +124,35 @@ Thank you for choosing us.
 
 
 Go ahead and try placing a test order to check everything is working
+
+
+## Using the Upgrade/Downgrade option from WHMCS
+
+You can opt to use the Upgrade/Downgrade option in WHMCS by choosing the upgrade packages in the "Upgrades" tab of the product edit form (Configuration > System Settings > Products/Services > Edit the desired product)
+
+Ugrade/downgrade option works by cancelling the existing license at OPSSHIELD and issuing a new license and updating the respective service in WHMCS. Refund will be calculated and credited to you reseller account if there are no open invoices for the respective license (i.e. only if more than 5 days to renewal). 
+
+> [!NOTE]
+> A new license key will be generated which must be applied on the client server to use the new package.
+
+You should create an Upgrade email template to send the license key and alert the user of the license key change.
+
+#### Sample email content
+
+```
+Dear {$client_name},
+
+Your service change was successful
+
+Please apply the key {$service_domain} on server at the earliest
+Use the following command to apply the license on your server
+
+cpgcli license --key {$service_domain}
+
+The old license is cancelled and should be immideately replaced with the new key.
+You can read more at https://opsshield.com/help/cpguard/manage-license/
+
+Thank you for choosing us.
+
+{$signature}
+```

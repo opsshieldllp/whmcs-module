@@ -340,6 +340,75 @@ function opsshield_UnsuspendAccount(array $params)
 }
 
 /**
+ * Upgrade/Downgrade a package.
+ *
+ * This function runs for upgrading and downgrading of products.
+ *
+ * @param array $params common module parameters
+ *
+ * @see https://developers.whmcs.com/provisioning-modules/module-parameters/
+ *
+ * @return string "success" or an error message
+ */
+function opsshield_ChangePackage(array $params)
+{
+    try {
+
+        $service = ServiceModel::find($params['serviceid']);
+        if ($service) {
+
+            //Now create a new license 
+            $package_id = $params['configoption1'];
+            if (empty($package_id)) {
+                throw new Exception("Product package is not set in module");
+            }
+
+            //First cancel existing license
+            $api = new API($params['serverpassword']);
+            
+            $currency = in_array($params['configoption2'], ['USD', 'INR']) ? $params['configoption2'] : 'USD';
+            $pricing_id = $api->getPricingId($package_id, $currency);
+
+            $response = $api->changePackage($service->service_id, $pricing_id, 1, $params['clientsdetails']['email']);
+
+            if (isset($response['services'])) {
+                //Success: new license created
+                $params['model']->serviceProperties->save(['Domain' => $response['services'][0]['license_key']]);
+
+                $service->service_id = $response['services'][0]['service_id'];
+                $service->license_key = $response['services'][0]['license_key'];
+                $service->status = $response['services'][0]['status'];
+                $service->details = [];
+                $service->sync_time = null;
+
+                $service->save();
+
+            } else if(isset($response['error'])) {
+                throw new Exception($response['error']);
+            }else{
+                throw new Exception('API to OPSSHIELD failed!');
+            }
+
+        } else {
+            throw new Exception('Service does not exist.');
+        }
+    } catch (Exception $e) {
+        // Record the error in WHMCS's module log.
+        logModuleCall(
+            'opsshield',
+            __FUNCTION__,
+            $params,
+            $e->getMessage(),
+            $e->getTraceAsString()
+        );
+
+        return $e->getMessage();
+    }
+
+    return 'success';
+}
+
+/**
  * Terminate instance of a product/service.
  *
  * Called when a termination is requested. This can be invoked automatically for
@@ -573,42 +642,6 @@ function opsshield_resendInvitation(array $params)
             throw new Exception('Service does not exist.');
         }
 
-    } catch (Exception $e) {
-        // Record the error in WHMCS's module log.
-        logModuleCall(
-            'opsshield',
-            __FUNCTION__,
-            $params,
-            $e->getMessage(),
-            $e->getTraceAsString()
-        );
-
-        return $e->getMessage();
-    }
-
-    return 'success';
-}
-
-/**
- * Custom function for performing an additional action.
- *
- * You can define an unlimited number of custom functions in this way.
- *
- * Similar to all other module call functions, they should either return
- * 'success' or an error message to be displayed.
- *
- * @param array $params common module parameters
- *
- * @see https://developers.whmcs.com/provisioning-modules/module-parameters/
- * @see opsshield_ClientAreaCustomButtonArray()
- *
- * @return string "success" or an error message
- */
-function opsshield_actionOneFunction(array $params)
-{
-    try {
-        // Call the service's function, using the values provided by WHMCS in
-        // `$params`.
     } catch (Exception $e) {
         // Record the error in WHMCS's module log.
         logModuleCall(

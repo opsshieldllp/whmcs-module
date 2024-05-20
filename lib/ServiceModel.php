@@ -5,6 +5,7 @@ namespace WHMCS\Module\Server\OpsShield;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\AsArrayObject;
 use WHMCS\Database\Capsule;
 
 class ServiceModel extends Model
