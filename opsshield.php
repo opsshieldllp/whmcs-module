@@ -156,57 +156,60 @@ function opsshield_CreateAccount(array $params)
         ServiceModel::setupDatabase();
 
         $service = ServiceModel::find($params['serviceid']);
-        if (is_null($service)) {
+        $api = new API($params['serverpassword']);
 
-            $api = new API($params['serverpassword']);
-
-            $package_id = $params['configoption1'];
-            if (empty($package_id)) {
-                throw new Exception("Product package is not set in module");
+        if ($service) {
+            $response = $api->getLicenseDetails($service->service_id);
+            if($response['status'] != 'canceled'){
+                throw new Exception('Service already created.');
             }
-
-            $currency = in_array($params['configoption2'], ['USD', 'INR']) ? $params['configoption2'] : 'USD';
-
-            $pricing_id = $api->getPricingId($package_id, $currency);
-
-            $response = $api->addLicense($pricing_id, 1, $params['clientsdetails']['email']);
-
-            if (isset($response['services'])) {
-                //Success: License created
-                $params['model']->serviceProperties->save(['Domain' => $response['services'][0]['license_key']]);
-
-                $service = new ServiceModel;
-                $service->id = $params['serviceid'];
-                $service->serverid = $params['serverid'];
-                $service->userid = $params['userid'];
-
-                $service->service_id = $response['services'][0]['service_id'];
-                $service->license_key = $response['services'][0]['license_key'];
-                $service->status = $response['services'][0]['status'];
-
-                $service->save();
-
-                if ($response['invite_link']) {
-                    $email_data = array(
-                        'messagename' => $params['configoption3'],
-                        'id' => $params['serviceid'],
-                        'customvars' => base64_encode(
-                            serialize(
-                                array(
-                                    "invitation_link" => $response['invite_link']
-                                )
-                            )
-                        ),
-                    );
-                    localAPI('SendEmail', $email_data);
-                }
-
-            } else {
-                throw new Exception('API to OPSSHIELD failed!');
-            }
-        } else {
-            throw new Exception('Service already created.');
         }
+
+        $package_id = $params['configoption1'];
+        if (empty($package_id)) {
+            throw new Exception("Product package is not set in module");
+        }
+
+        $currency = in_array($params['configoption2'], ['USD', 'INR']) ? $params['configoption2'] : 'USD';
+
+        $pricing_id = $api->getPricingId($package_id, $currency);
+
+        $response = $api->addLicense($pricing_id, 1, $params['clientsdetails']['email']);
+
+        if (isset($response['services'])) {
+            //Success: License created
+            $params['model']->serviceProperties->save(['Domain' => $response['services'][0]['license_key']]);
+
+            $service = $service ?? new ServiceModel;
+            $service->id = $params['serviceid'];
+            $service->serverid = $params['serverid'];
+            $service->userid = $params['userid'];
+
+            $service->service_id = $response['services'][0]['service_id'];
+            $service->license_key = $response['services'][0]['license_key'];
+            $service->status = $response['services'][0]['status'];
+
+            $service->save();
+
+            if ($response['invite_link']) {
+                $email_data = array(
+                    'messagename' => $params['configoption3'],
+                    'id' => $params['serviceid'],
+                    'customvars' => base64_encode(
+                        serialize(
+                            array(
+                                "invitation_link" => $response['invite_link']
+                            )
+                        )
+                    ),
+                );
+                localAPI('SendEmail', $email_data);
+            }
+
+        } else {
+            throw new Exception('API to OPSSHIELD failed!');
+        }
+
 
     } catch (Exception $e) {
         // Record the error in WHMCS's module log.
@@ -365,7 +368,7 @@ function opsshield_ChangePackage(array $params)
 
             //First cancel existing license
             $api = new API($params['serverpassword']);
-            
+
             $currency = in_array($params['configoption2'], ['USD', 'INR']) ? $params['configoption2'] : 'USD';
             $pricing_id = $api->getPricingId($package_id, $currency);
 
@@ -383,9 +386,9 @@ function opsshield_ChangePackage(array $params)
 
                 $service->save();
 
-            } else if(isset($response['error'])) {
+            } else if (isset($response['error'])) {
                 throw new Exception($response['error']);
-            }else{
+            } else {
                 throw new Exception('API to OPSSHIELD failed!');
             }
 
@@ -809,6 +812,44 @@ function opsshield_GetRemoteMetaData(array $params)
         $api = new API($params['serverpassword']);
         $details = $api->accountDetails();
         if (isset($details['due'])) {
+
+            $extra_conf = parse_ini_string($params['serveraccesshash']);
+            $credit_warning = $extra_conf['notify_low_credit'] ?? 250;
+
+            $balance = $dues = [];
+            $low_balance = false;
+
+            foreach ($details['credit'] as $currency => $amount) {
+                if ($amount > 0) {
+                    $balance[] = "$amount $currency";
+                    if ($amount < $credit_warning) {
+                        $low_balance = true;
+                    }
+                }
+            }
+
+            if (empty($balance)) { //both balance zero
+                $low_balance = true;
+                $balance = "0";
+            }
+
+            foreach ($details['due'] as $currency => $amount) {
+                if ($amount > 0) {
+                    $dues[] = "$amount $currency";
+                    $low_balance = true;
+                }
+            }
+            $dues = empty($dues) ? ["0"] : $dues;
+
+            if ($low_balance) {
+                $results = localAPI('SendAdminEmail', [
+                    'customsubject' => 'Credit balance low at OPSSHIELD',
+                    'custommessage' => "<p>Hello Admin,</p><h3>You have low balance in your OPSSHIELD reseller account</h3>
+                                        <p>Please add some credits to your account at the earliest.</p>
+                                        <h5>Balance : " . implode(', ', $balance) . "</h5><h5>Dues : " . implode(', ', $dues) . "</h5>",
+                ]);
+            }
+
             return $details;
         } else {
             throw new Exception('API to OPSSHIELD failed!');
