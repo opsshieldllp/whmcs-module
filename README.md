@@ -156,3 +156,16 @@ Thank you for choosing us.
 
 {$signature}
 ```
+
+### Sending notification for low credit balance
+
+WHMCS Admin users will be notified by email of low credit balance in your reseller account at OPSSHIELD when the credit balance falls below 250 USD/INR. You set a custom limit by modifying and setting the following string as `Access Hash` in the server edit form (Configuration > System Settings > Servers > Edit server)
+
+```
+notify_low_credit = 100
+```
+
+![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/a30c5623-936c-42e1-b9b9-5156b054c367)
+
+
+The check happens along with the server meta refresh API
