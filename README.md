@@ -24,6 +24,8 @@ This guide walks you through the initial setup process for the OPSSHIELD WHMCS p
 
 First we have to add a new server in the WHMCS admin
 
+https://github.com/opsshieldllp/whmcs-module/assets/81526091/6f904514-d86a-4b70-b47f-ef6290738f5d
+
 1. Go to Configuration > System Settings > Servers and click on `+ Add new server` 
 2. Select `OPSSHIELD Licenses` as the Module
 3. Enter Hostname or IP Address as `manage.opsshield.com` (Unused, but required to be filled in by WHMCS)
@@ -34,11 +36,12 @@ First we have to add a new server in the WHMCS admin
 
 ![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/7de917fd-9bf7-4e99-8142-2c96d87d6bec)
 
-https://github.com/opsshieldllp/whmcs-module/assets/81526091/95b33c60-0ab3-43a5-8247-e7f4b5801091
 
 ## Step 2. Create a welcome email template
 
 Before we can proceed to create new Product/Service packages we have to create two Product email templates for the products
+
+https://github.com/opsshieldllp/whmcs-module/assets/81526091/0a06411f-f6ba-48ac-8e04-368e8594b20c
 
 1. Go to Configuration > System Settings > Email Templates and click on `+ Create New Email Template`
 2. Select "Email Type" as `Product/Service`, Enter `cPGuard welcome email` as "Unique Name" and click `Create`
@@ -108,6 +111,8 @@ Thank you for choosing us.
 > Invitation email is send to clients (identified by email) who does not already have an OPSSHIELD account. An OPSSHIELD account is required to login and view the cPGuard UI at https://app.opsshield.com
 
 ## Step 4. Adding a Product/Service
+
+https://github.com/opsshieldllp/whmcs-module/assets/81526091/1c798d7c-ba99-49af-9bea-946bcaff6ac8
 
 1. Go to Configuration > System Settings > Products/Services and click on `+ Create a New Product`
 2. Select `Other` for product type and Choose/Create a product group as you prefer
