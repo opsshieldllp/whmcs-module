@@ -830,7 +830,7 @@ function opsshield_GetRemoteMetaData(array $params)
 
             if (empty($balance)) { //both balance zero
                 $low_balance = true;
-                $balance = "0";
+                $balance[] = "0";
             }
 
             foreach ($details['due'] as $currency => $amount) {
