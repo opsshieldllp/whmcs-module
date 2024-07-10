@@ -34,6 +34,8 @@ First we have to add a new server in the WHMCS admin
 
 ![image](https://github.com/opsshieldllp/whmcs-module/assets/81526091/7de917fd-9bf7-4e99-8142-2c96d87d6bec)
 
+https://github.com/opsshieldllp/whmcs-module/assets/81526091/95b33c60-0ab3-43a5-8247-e7f4b5801091
+
 ## Step 2. Create a welcome email template
 
 Before we can proceed to create new Product/Service packages we have to create two Product email templates for the products
