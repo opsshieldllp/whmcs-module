@@ -836,12 +836,13 @@ function opsshield_GetRemoteMetaData(array $params)
             foreach ($details['due'] as $currency => $amount) {
                 if ($amount > 0) {
                     $dues[] = "$amount $currency";
-                    $low_balance = true;
                 }
             }
             $dues = empty($dues) ? ["0"] : $dues;
 
-            if ($low_balance) {
+            //Send low balance email
+            $hours = explode(',', str_replace(' ', '', $extra_conf['notify_hours'] ?? "*"));
+            if ($low_balance && $credit_warning > 0 && (in_array('*', $hours) || in_array(date('H'), $hours))) {
                 $results = localAPI('SendAdminEmail', [
                     'customsubject' => 'Credit balance low at OPSSHIELD',
                     'custommessage' => "<p>Hello Admin,</p><h3>You have low balance in your OPSSHIELD reseller account</h3>
