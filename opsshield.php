@@ -58,6 +58,15 @@ function opsshield_MetaData()
     );
 }
 
+
+function opsshield_AutoPopulateServerConfig()
+{
+    return array(
+        "name" => "OPSSHIELD Reseller",
+        "hostname" => 'manage.opsshield.com',
+    );
+}
+
 /**
  * Define product configuration options.
  *
@@ -160,7 +169,7 @@ function opsshield_CreateAccount(array $params)
 
         if ($service) {
             $response = $api->getLicenseDetails($service->service_id);
-            if($response['status'] != 'canceled'){
+            if ($response['status'] != 'canceled') {
                 throw new Exception('Service already created.');
             }
         }

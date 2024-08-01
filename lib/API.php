@@ -2,32 +2,14 @@
 
 namespace WHMCS\Module\Server\OpsShield;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\RequestException;
-use GuzzleHttp\RequestOptions;
-
 class API
 {
     private $endpoint = 'https://manage.opsshield.com/plugin/reseller_api/cpguard/';
     public $api_key;
-    private $client;
 
     public function __construct($api_key)
     {
         $this->api_key = $api_key;
-
-        $this->client = new Client([
-            'base_uri' => $this->endpoint,
-            RequestOptions::CONNECT_TIMEOUT => 30,
-            RequestOptions::HTTP_ERRORS => false,
-            RequestOptions::DEBUG => false,
-            RequestOptions::HEADERS => [
-                'User-Agent' => 'cPGuardWHMCS',
-                'Accept' => 'application/json',
-            ],
-        ]);
-
-
     }
 
     public function accountDetails()
@@ -115,14 +97,33 @@ class API
 
     public function testConnection()
     {
-        $request = $this->client->post('getcredit', [
-            'form_params' => ['apikey' => $this->api_key],
+
+        $ch = curl_init($this->endpoint . 'getcredit');
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, ['apikey' => $this->api_key]);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent' => 'cPGuardWHMCS',
+            'Accept' => 'application/json',
         ]);
 
-        if ($request->getStatusCode() === 200) {
+        // Receive server response ...
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error_no = curl_errno($ch);
+        if ($error_no) {
+            return "API failed; Curl error : #$error_no" . curl_error($ch);
+        }
+
+        curl_close($ch);
+
+        if ($httpcode == 200) {
             return true;
         } else {
-            $response = json_decode($request->getBody()->getContents(), true);
+            $response = json_decode($response, true);
             return $response['message'] ?? 'Connection failed';
         }
 
@@ -130,20 +131,33 @@ class API
 
     public function request($method, $data = [])
     {
-        $data = array_merge(['apikey' => $this->api_key], $data);
 
-        $request = $this->client->post($method, [
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-            'form_params' => $data,
+        $data['apikey'] = $this->api_key;
+
+        $ch = curl_init($this->endpoint . $method);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent' => 'cPGuardWHMCS',
+            'Accept' => 'application/json',
         ]);
 
-        if ($request->getStatusCode() !== 200) {
-            throw new \Exception("API failed; Response : " . $request->getBody()->getContents());
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        $response = curl_exec($ch);
+        $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error_no = curl_errno($ch);
+        if ($error_no) {
+            throw new \Exception("API failed; Curl error : #$error_no" . curl_error($ch));
         }
 
-        $response = $request->getBody()->getContents();
+        curl_close($ch);
+
+        if ($httpcode !== 200) {
+            throw new \Exception("API failed; Response : $response");
+        }
 
         return json_decode($response, true);
 
