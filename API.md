@@ -265,7 +265,7 @@ The invitation link will be returned if the client registration process is incom
 List all licenses under your reseller account.
 
 **Method:** POST
-**URL:** `https://manage.opsshield.com/plugin/reseller_api/cpguard/addlicense`
+**URL:** `https://manage.opsshield.com/plugin/reseller_api/cpguard/listlicenses`
 
 ### Request Body
 
